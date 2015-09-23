@@ -1,7 +1,9 @@
+# Set the working directory to where the datasets are stored
 setwd("C:/Data_Science/US College/CollegeScorecard_Raw_Data")
 
+# Load the required packages
 library(readr)
-library(ggvis)
+library(ggplot2)
 library(plyr)
 library(reshape2)
 library(R2HTML)
@@ -53,13 +55,18 @@ top_10_selected_by_ratio <- top_10_selected_by_ratio[1:10,]
 top_10_selected_by_ratio$Institution <- strtrim(top_10_selected_by_ratio$INSTNM, 40)
 top_10_selected_by_ratio$Institution <- factor(top_10_selected_by_ratio$Institution, levels=top_10_selected_by_ratio$Institution)
 
-top_10_selected_by_ratio %>%
-  ggvis(~Institution, ~earnings_debt_ratio) %>%
-  layer_bars() %>%
-  add_axis("x", title="Institution", title_offset = 180, properties = axis_props(    
-    labels = list(angle = 45, align = "left", fontSize = 10)
-  )) %>%
-  add_axis("y", title = "Earnings to debt ratio")
+# Plot bar graph with the top 10 colleges by Earnings to Debt Ratio
+ggplot(data=top_10_selected_by_ratio, aes(x=Institution, y=earnings_debt_ratio)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# top_10_selected_by_ratio %>%
+# ggvis(~Institution, ~earnings_debt_ratio) %>%
+#   layer_bars() %>%
+#   add_axis("x", title="Institution", title_offset = 180, properties = axis_props(    
+# labels = list(angle = 45, align = "left", fontSize = 10)
+#   )) %>%
+#   add_axis("y", title = "Earnings to debt ratio")
 
 # Export table to HTML
 HTMLDir <- "C:/Data_Science/US College/CollegeScorecard_Raw_Data/HTMLData"
@@ -74,14 +81,18 @@ top_10_selected_by_earnings <- top_10_selected_by_earnings[1:10,]
 top_10_selected_by_earnings$Institution <- strtrim(top_10_selected_by_earnings$INSTNM, 40)
 top_10_selected_by_earnings$Institution <- factor(top_10_selected_by_earnings$Institution, levels=top_10_selected_by_earnings$Institution)
 
+# Plot bar graph with the top 10 colleges by earnings
+ggplot(data=top_10_selected_by_earnings, aes(x=Institution, y=md_earn_wne_p6)) +
+  geom_bar(stat="identity") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-top_10_selected_by_earnings %>%
-  ggvis(~Institution, ~md_earn_wne_p6) %>%
-  layer_bars() %>%
-  add_axis("x", title="Institution", title_offset = 180, properties = axis_props(    
-    labels = list(angle = 45, align = "left", fontSize = 10)
-  )) %>%
-  add_axis("y", title = "Earnings", title_offset = 75)
+# top_10_selected_by_earnings %>%
+# ggvis(~Institution, ~md_earn_wne_p6) %>%
+#   layer_bars() %>%
+#   add_axis("x", title="Institution", title_offset = 180, properties = axis_props(    
+# labels = list(angle = 45, align = "left", fontSize = 10)
+#   )) %>%
+#   add_axis("y", title = "Earnings", title_offset = 75)
 
 
 # Export table to HTML
@@ -91,7 +102,15 @@ HTML.title("Analysis of US College Data", HR=1)
 print(top_10_selected_by_earnings[,c("Institution","md_earn_wne_p6","GRAD_DEBT_MDN","earnings_debt_ratio", "months_to_pay")])
 HTMLStop()
 
-college_data %>%
-  ggvis(~TUITIONFEE_IN, ~md_earn_wne_p6) %>%
-  layer_points() %>%
-  layer_model_predictions(model = "lm", se = TRUE)
+# Plot scatterplot with the correlation between Tuition and Earnings
+ggplot(college_data, aes(x=TUITIONFEE_IN, y=md_earn_wne_p6)) +
+  geom_point(shape=1) +
+  geom_smooth(method=lm)
+
+# college_data %>%
+# ggvis(~TUITIONFEE_IN, ~md_earn_wne_p6) %>%
+#   layer_points() %>%
+#   layer_model_predictions(model = "lm", se = TRUE)
+
+cor_tuition_earnings <- cor(college_data$TUITIONFEE_IN, college_data$md_earn_wne_p6, use="complete.obs")
+print(cor_tuition_earnings)
